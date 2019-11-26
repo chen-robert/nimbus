@@ -1,0 +1,24 @@
+{
+  "name": "nimbus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "dateformat": "^3.0.3",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "lowdb": "^1.0.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.8"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js --watch index.js"
+  },
+  "author": "Robert Chen",
+  "license": "ISC"
+}
