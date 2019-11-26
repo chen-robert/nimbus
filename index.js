@@ -46,6 +46,7 @@ if(false) {
 
 const helpMsgs = {
   help: config.prefix + "help",
+  toggle: config.prefix + "toggle | Toggle ability to trade (admin only)",
   auth: config.prefix + "auth [codeforces username]. e.g. `" + config.prefix + "auth gamesterrex`",
   verify: config.prefix + "verify",
   list: config.prefix + "list | Lists what stocks you own",
@@ -55,6 +56,7 @@ const helpMsgs = {
   resetCache: config.prefix + "resetcache | Resets the cache. You should run this after a contest to see updated rating values"
 }
 
+let trading = true;
 let cache = {};
 const ratings = ["newbie", "pupil", "specialist", "expert", "candidate master", "master", "international master", "grandmaster", "international grandmaster", "legendary grandmaster"];
 const getVal = async username => {
@@ -91,6 +93,11 @@ client.on('message', async msg => {
     } else if(cmd === "resetcache") {
       cache = {};
       msg.channel.send("Successfully reset rating cache");
+    } else if (cmd === "toggle") {
+      if(msg.member.roles.find("name", "Admin")) {
+        trading = !trading;
+        msg.channel.send(trading? "Trading is now activated": "Trading is now deactivated");
+      } else msg.channel.send("No permission. Admin role required");
     } else if (cmd === "feature") {
       if(msg.author.id === "292493700427415554" || msg.author.id === "530157531314520066") return msg.channel.send(":(");
       console.log(msg.author.id + " just did a feature request");
@@ -167,6 +174,8 @@ client.on('message', async msg => {
 
           msg.channel.send(ret);
         } else if (cmd === "sell") {
+          if(!trading) return msg.channel.send("Trading is currently deactivated");
+
           const name = parts[0];
           const amt = Math.floor(+parts[1]);
 
@@ -199,6 +208,8 @@ client.on('message', async msg => {
 
           return msg.channel.send(ret);
         } else if(cmd === "buy") {
+          if(!trading) return msg.channel.send("Trading is currently deactivated");
+
           const name = parts[0];
           const amt = Math.floor(+parts[1]);
 
