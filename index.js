@@ -59,6 +59,8 @@ client.on('message', async msg => {
     if(cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
     } else if (cmd === "feature") {
+      if(msg.author.id === "292493700427415554") return msg.channel.send(":(");
+      console.log(msg.author.id + " just did a feature request");
       const msgs = parts.join(" ");
 
       db.get("features")
@@ -110,15 +112,17 @@ client.on('message', async msg => {
           .set("stock", {
             [uname]: config.startingStock
           })
+          .set("money", 20)
           .write();
         }
       });
-    } else if (["list"].includes(cmd)) {
+    } else if (["list", "sell", "sales"].includes(cmd)) {
       if(verified) {
+        const stocks = db.get("users").get(uid).get("stock").value();
+        const bal = db.get("users").get(uid).get("money").value();
         if(cmd === "list") {
-          const stocks = db.get("users").get(uid).get("stock").value();
-          
-          let ret = "Your Stocks: ```";
+          let ret = "Your Money: `$" + bal.toFixed(2) + "`";
+          ret += "\nYour Stocks: ```";
           
           for(const [name, amt] of Object.entries(stocks)) {
             const value = await getVal(name);
@@ -130,6 +134,27 @@ client.on('message', async msg => {
         } else if (cmd === "sell") {
           const name = parts[0];
           const amt = parts[1];
+
+          if(!stocks[name]) return msg.channel.send("Error, you currently do not own any stock of type " + name);
+          
+          const curr = stocks[name];
+          if(curr < amt) return msg.channel.send("Error, you only have " + curr + " stocks");
+          
+          const value = await getVal(name);
+          db.get("users").get(uid).get("stock").set(name, curr - amt).write();
+          db.get("users").get(uid).set("money", value * amt + bal).write();
+
+          db.get("sales").push({name, amt}).write();
+
+          return msg.channel.send("Successfully sold `" + amt + "` of stock `" + name + "`");
+        } else if(cmd === "sales") {
+          let ret = "Stock Availble:\n```";
+          for(const {name, amt} of db.get("sales").value()) {
+            ret += name + " : " + amt + "\n";
+          }
+          ret += "\n```";
+
+          return msg.channel.send(ret);
         }
       } else {
         msg.channel.send("Please verify your codeforces account first with " + helpMsgs.auth);
