@@ -55,7 +55,7 @@ const helpMsgs = {
   resetCache: config.prefix + "resetcache | Resets the cache. You should run this after a contest to see updated rating values"
 }
 
-const cache = {};
+let cache = {};
 const ratings = ["newbie", "pupil", "specialist", "expert", "candidate master", "master", "international master", "grandmaster", "international grandmaster", "legendary grandmaster"];
 const getVal = async username => {
   if(cache[username]) return cache[username];
