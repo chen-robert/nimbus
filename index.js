@@ -51,11 +51,12 @@ const helpMsgs = {
   list: config.prefix + "list | Lists what stocks you own",
   sales: config.prefix + "sales | List what stocks you can purchase",
   sell: config.prefix + "sell [stock] [amt] | Sell [amt] of [stock]",
-  buy: config.prefix + "buy [stock] [amt]"
+  buy: config.prefix + "buy [stock] [amt]",
+  resetCache: config.prefix + "resetcache | Resets the cache. You should run this after a contest to see updated rating values"
 }
 
 const cache = {};
-const ratings = ["newbie", "pupil", "specialist", "expert", "candidate master", "master", "international master", "grandmaster", "international grandmaster", "legendary grandmaster"]
+const ratings = ["newbie", "pupil", "specialist", "expert", "candidate master", "master", "international master", "grandmaster", "international grandmaster", "legendary grandmaster"];
 const getVal = async username => {
   if(cache[username]) return cache[username];
 
@@ -87,6 +88,9 @@ client.on('message', async msg => {
     
     if(cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
+    } else if(cmd === "resetcache") {
+      cache = {};
+      msg.channel.send("Successfully reset rating cache");
     } else if (cmd === "feature") {
       if(msg.author.id === "292493700427415554" || msg.author.id === "530157531314520066") return msg.channel.send(":(");
       console.log(msg.author.id + " just did a feature request");
