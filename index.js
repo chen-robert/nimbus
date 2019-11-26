@@ -73,7 +73,7 @@ const getVal = async username => {
 client.on('message', async msg => {
   if(msg.author.bot) return;
 
-  if (msg.content.startsWith(config.prefix) && !msg.content.startsWith("~~")) {
+  if (msg.content.startsWith(config.prefix)) {
     const txt = msg.content.substring(config.prefix.length);
 
     const cmd = txt.split(" ")[0];
@@ -158,6 +158,8 @@ client.on('message', async msg => {
           ret += "\nYour Stocks: ```";
           
           for(const [name, amt] of Object.entries(stocks)) {
+            if(amt === 0) continue;
+
             const value = await getVal(name);
             ret += name + " : " + amt + " stocks each at $" + value.toFixed(2) + "\n";
           }
