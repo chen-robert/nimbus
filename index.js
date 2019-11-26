@@ -73,7 +73,7 @@ const getVal = async username => {
 client.on('message', async msg => {
   if(msg.author.bot) return;
 
-  if (msg.content.startsWith(config.prefix)) {
+  if (msg.content.startsWith(config.prefix) && !msg.content.startsWith("~~")) {
     const txt = msg.content.substring(config.prefix.length);
 
     const cmd = txt.split(" ")[0];
