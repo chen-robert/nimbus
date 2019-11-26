@@ -159,6 +159,7 @@ client.on('message', async msg => {
     } else if (["list", "sell", "sales", "buy"].includes(cmd)) {
       if(verified) {
         const stocks = db.get("users").get(uid).get("stock").value();
+        const sales = db.get("sales").value();
         const bal = db.get("users").get(uid).get("money").value();
         if(cmd === "list") {
           let ret = "Your Money: `$" + bal.toFixed(2) + "`";
@@ -188,12 +189,17 @@ client.on('message', async msg => {
           if(amt <= 0) return msg.channel.send("You can't sell " + amt + " stock");
           
           const value = await getVal(name);
-          db.get("users").get(uid).get("stock").set(name, curr - amt).write();
-          db.get("users").get(uid).set("money", value * amt + bal).write();
           
-          if(!db.get("sales").has(name).value()) db.get("sales").set(name, 0).write();
+          const stock = db.get("users").get(uid).get("stock").value();
+          stock[name] = curr - amt;
+          db.get("users").set("stock", stock).write();
 
-          db.get("sales").set(name, db.get("sales").get(name).value() + amt).write();
+          db.get("users").get(uid).set("money", value * amt + bal).write();
+         
+          if(!sales[name]) sales[name] = 0;
+          sales[name] += amt;
+
+          db.set("sales", sales).write();
 
           return msg.channel.send("Successfully sold `" + amt + "` of stock `" + name + "`");
         } else if(cmd === "sales") {
@@ -213,7 +219,6 @@ client.on('message', async msg => {
           const name = parts[0];
           const amt = Math.floor(+parts[1]);
 
-          const sales = db.get("sales").value();
 
           if(!name || !amt) return msg.channel.send(helpMsgs.buy);
           if(amt <= 0) return msg.channel.send("You can't sell " + amt + " stock");
@@ -225,11 +230,14 @@ client.on('message', async msg => {
           if(curr < amt) return msg.channel.send("Error, only " + curr + " stocks for sale");
           if(value * amt > bal) return msg.channel.send("You cannot afford to purchase this much stock");
 
-          const currStockAmt = db.get("users").get(uid).get("stock").get(name).value() || 0;
-          db.get("users").get(uid).get("stock").set(name, currStockAmt + amt).write();
+          const stock = db.get("users").get(uid).get("stock").value();
+          stock[name] += amt;
+          db.get("users").get(uid).set("stock", stock).write();
+          
           db.get("users").get(uid).set("money", bal - value * amt).write();
-
-          db.get("sales").set(name, curr - amt).write();
+          
+          sales[name] = curr - amt;
+          db.get("sales").set(sales).write();
 
           return msg.channel.send("Successfully purchased `" + amt + "` of stock `" + name + "`");
         }
