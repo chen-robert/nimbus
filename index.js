@@ -16,7 +16,7 @@ const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync(__dirname + "/ext/db.json");
 const db = low(adapter);
 
-db.defaults({ users: {}, sales: [] }).write();
+db.defaults({ users: {}, sales: [], features: [] }).write();
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -58,7 +58,15 @@ client.on('message', async msg => {
     
     if(cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
-    } else if(cmd === "auth") {
+    } else if (cmd === "feature") {
+      const msgs = parts.join(" ");
+
+      db.get("features")
+        .push(msgs)
+        .write();
+
+      msg.channel.send("Feature request saved. Alternatively, make a pull request at https://github.com/chen-robert/nimbus (or shoot me a star :P)");
+    }else if (cmd === "auth") {
       if(verified) return msg.channel.send("You've already been verified.");
       
       const uname = parts[0];
