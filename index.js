@@ -204,8 +204,10 @@ client.on('message', async msg => {
           return msg.channel.send("Successfully sold `" + amt + "` of stock `" + name + "`");
         } else if(cmd === "sales") {
           let ret = "Stock Availble:\n```";
+          console.log(db.get("sales").value())
           for(const [name, amt] of Object.entries(db.get("sales").value())) {
             if(amt === 0) continue;
+            console.log(name);
 
             const value = await getVal(name);
             ret += name + " : " + amt + " each at $" + value.toFixed(2) + "\n";
@@ -231,13 +233,14 @@ client.on('message', async msg => {
           if(value * amt > bal) return msg.channel.send("You cannot afford to purchase this much stock");
 
           const stock = db.get("users").get(uid).get("stock").value();
+          if(!stock[name]) stock[name] = 0;
           stock[name] += amt;
           db.get("users").get(uid).set("stock", stock).write();
           
           db.get("users").get(uid).set("money", bal - value * amt).write();
           
           sales[name] = curr - amt;
-          db.get("sales").set(sales).write();
+          db.set("sales", sales).write();
 
           return msg.channel.send("Successfully purchased `" + amt + "` of stock `" + name + "`");
         }
