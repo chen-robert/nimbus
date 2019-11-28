@@ -5,11 +5,10 @@ const config = require(__dirname + "/config.json");
 const crypto = require("crypto");
 const request = require("request-promise-native");
 
+const {getVal, resetCache} = require("./src/getVal");
+
 const Discord = require('discord.js');
 const client = new Discord.Client();
-
-const dateFormat = require('dateformat');
-
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 
@@ -57,20 +56,6 @@ const helpMsgs = {
 }
 
 let trading = true;
-let cache = {};
-const ratings = ["newbie", "pupil", "specialist", "expert", "candidate master", "master", "international master", "grandmaster", "international grandmaster", "legendary grandmaster"];
-const getVal = async username => {
-  if(cache[username]) return cache[username];
-
-  const data = JSON.parse(await request(`https://codeforces.com/api/user.info?handles=${username}`)).result[0];
-
-  cache[username] = data.rating === undefined ? 
-    0 
-    : 
-    Math.pow(1.2, ratings.indexOf(data.rank)) * Math.max(0, data.rating) / 100;
-
-  return cache[username];
-}
 
 client.on('message', async msg => {
   if(msg.author.bot) return;
@@ -91,7 +76,7 @@ client.on('message', async msg => {
     if(cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
     } else if(cmd === "resetcache") {
-      cache = {};
+      resetCache();
       msg.channel.send("Successfully reset rating cache");
     } else if (cmd === "toggle") {
       if(msg.member.roles.find("name", "Admin")) {
