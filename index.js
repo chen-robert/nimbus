@@ -2,15 +2,13 @@ require("dotenv").config();
 
 const config = require(__dirname + "/config.json");
 
-const crypto = require("crypto");
-const request = require("request-promise-native");
-
 const { getVal } = require("./src/getVal");
 
 const commands = {
   feature: require("./src/commands/feature").default,
   resetCache: require("./src/commands/resetCache").default,
   auth: require("./src/commands/auth").default,
+  verify: require("./src/commands/verify").default
 };
 
 const Discord = require("discord.js");
@@ -82,46 +80,7 @@ client.on("message", async msg => {
     } else if (cmd === "verify") {
       if (verified) return msg.channel.send("You've already been verified.");
 
-      const uname = db
-        .get("users")
-        .get(uid)
-        .get("username")
-        .value();
-      const token = db
-        .get("users")
-        .get(uid)
-        .get("token")
-        .value();
-      if (!uname) return msg.channel.send("Please generate a token with `" + helpMsgs.auth + "` first!");
-
-      request(`https://codeforces.com/api/user.info?handles=${uname}`, (err, res, body) => {
-        const data = JSON.parse(body);
-        const user = data.status === "FAILED" ? undefined : data.result[0];
-
-        if (!user)
-          return msg.channel.send(
-            "Invalid username `" + uname + "`. Please generate a new token with " + helpMsgs.auth + ".",
-          );
-
-        const age = user.lastOnlineTimeSeconds - user.registrationTimeSeconds;
-
-        if (age < 60 * 60 * 24 * 30) return msg.channel.send("Sorry, user account is too new. Cannot be verified");
-
-        if (user.firstName != token) {
-          return msg.channel.send("Invalid token. Found `" + user.firstName + "` while expected `" + token + "`.");
-        } else {
-          msg.channel.send("Authenticated as " + uname + " successfully!");
-
-          db.get("users")
-            .get(uid)
-            .set("auth", true)
-            .set("stock", {
-              [uname]: config.startingStock,
-            })
-            .set("money", 20)
-            .write();
-        }
-      });
+      commands.verify.resolve(parts, msg);
     } else if (["list", "sell", "sales", "buy"].includes(cmd)) {
       if (verified) {
         const stocks = db
