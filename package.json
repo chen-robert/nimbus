@@ -20,9 +20,10 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "ts-node index.js",
     "dev": "nodemon index.js --watch index.js",
-    "format": "eslint \"**/*.js\""
+    "format": "eslint \"**/*.js\"",
+    "script:resetAll": "ts-node scripts/resetAll"
   },
   "author": "Robert Chen",
   "license": "ISC"

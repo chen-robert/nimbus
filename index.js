@@ -5,7 +5,12 @@ const config = require(__dirname + "/config.json");
 const crypto = require("crypto");
 const request = require("request-promise-native");
 
-const {getVal, resetCache} = require("./src/getVal");
+const {getVal} = require("./src/getVal");
+
+const commands = {
+  feature: require("./src/commands/feature").default,
+  resetCache: require("./src/commands/resetCache").default
+}
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
@@ -20,10 +25,6 @@ db.defaults({ users: {}, sales: {}, features: [] }).write();
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
-
-if(false) {
-
-}
 
 const helpMsgs = {
   help: config.prefix + "help",
@@ -57,24 +58,14 @@ client.on('message', async msg => {
     
     if(cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
-    } else if(cmd === "resetcache") {
-      resetCache();
-      msg.channel.send("Successfully reset rating cache");
-    } else if (cmd === "toggle") {
+    } else if(cmd === "resetcache") commands.resetCache.resolve(parts, msg);
+    else if (cmd === "toggle") {
       if(msg.member.roles.find("name", "Admin")) {
         trading = !trading;
         msg.channel.send(trading? "Trading is now activated": "Trading is now deactivated");
       } else msg.channel.send("No permission. Admin role required");
     } else if (cmd === "feature") {
-      if(msg.author.id === "292493700427415554" || msg.author.id === "530157531314520066") return msg.channel.send(":(");
-      console.log(msg.author.id + " just did a feature request");
-      const msgs = parts.join(" ");
-
-      db.get("features")
-        .push(msgs)
-        .write();
-
-      msg.channel.send("Feature request saved. Alternatively, make a pull request at https://github.com/chen-robert/nimbus (or shoot me a star :P)");
+      commands.feature.resolve(parts, msg);
     }else if (cmd === "auth") {
       if(verified) return msg.channel.send("You've already been verified.");
       
@@ -83,7 +74,7 @@ client.on('message', async msg => {
       if(!/^[a-z0-9\-_\.]+$/i.test(uname)) return msg.channel.send("Username must be alphanumeric");
 
 
-      const token = crypto.randomBytes(16).toString("hex");
+      const token = "nimbusverificationtoken" + crypto.randomBytes(16).toString("hex");
       msg.channel.send("Please change your First Name in https://codeforces.com/settings/social to `" + token + "` . Then type `" + config.prefix + "verify`. (You can change it back after you verify).");
 
       db.get("users")
