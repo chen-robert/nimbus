@@ -22,25 +22,7 @@ client.on('ready', () => {
 });
 
 if(false) {
-  const users = Object.keys(db.get("users").value());
 
-  users.forEach(user => {
-    const uname = db.get("users").get(user).get("username").value();
-
-    if(uname === undefined) {
-      db.get("users").get(user).set("auth", false).write();
-      return;
-    }
-
-    db.get("users")
-      .get(user)
-      .set("auth", true)
-      .set("stock", {
-        [uname]: config.startingStock
-      })
-      .set("money", 20)
-      .write();
-  });
 }
 
 const helpMsgs = {

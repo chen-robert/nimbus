@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@types/lowdb": "^1.0.9",
+    "@types/node": "^12.12.14",
     "dateformat": "^3.0.3",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
