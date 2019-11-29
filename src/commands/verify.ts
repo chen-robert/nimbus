@@ -5,25 +5,27 @@ import db from "../db";
 import Command from "./command";
 import config from "../../config.json";
 import { getHelp } from "../util";
+import AuthType from "./authType";
+import auth from "./auth";
 
 const verify: Command = {
   cmd: "verify",
   params: "",
   desc: "Verifies your account",
-  requiresAuth: false,
+  authType: AuthType.NOT_IF_AUTHED,
   resolve: (parts: string[], msg: Message) => {
     const uid = msg.author.id;
     const $user = (db.get("users") as any).get(uid);
     const uname = $user.get("username").value();
     const token = $user.get("token").value();
 
-    if (!uname) return msg.channel.send(`Please generate a token with \`${getHelp(verify)}\` first!`);
+    if (!uname) return msg.channel.send(`Please generate a token with \`${getHelp(auth)}\` first!`);
 
     request(`https://codeforces.com/api/user.info?handles=${uname}`, (err, res, body) => {
       const data = JSON.parse(body);
 
       if (data.status === "FAILED") {
-        return msg.channel.send(`Invalid username \`${uname}\`. Please generate a new token with ${getHelp(verify)}.`);
+        return msg.channel.send(`Invalid username \`${uname}\`. Please generate a new token with ${getHelp(auth)}.`);
       }
       const user = data.result[0];
       const age: number = user.lastOnlineTimeSeconds - user.registrationTimeSeconds;

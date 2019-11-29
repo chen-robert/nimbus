@@ -3,6 +3,7 @@ require("dotenv").config();
 const config = require(__dirname + "/config.json");
 
 const { getVal } = require("./src/getVal");
+const { getHelp } = require("./src/util");
 
 const commands = {
   feature: require("./src/commands/feature").default,
@@ -10,6 +11,8 @@ const commands = {
   auth: require("./src/commands/auth").default,
   verify: require("./src/commands/verify").default
 };
+
+const AuthType = require("./src/commands/authType").default;
 
 const Discord = require("discord.js");
 const client = new Discord.Client();
@@ -63,24 +66,34 @@ client.on("message", async msg => {
       .get("auth")
       .value();
 
-    if (cmd === "help") {
+    if(Object.keys(commands).includes(cmd)) {
+      const cmdObj = commands[cmd];
+
+      switch(cmdObj.authType) {
+        case AuthType.NOT_IF_AUTHED:
+          if (verified) return msg.channel.send("You've already been verified.");
+
+          cmdObj.resolve(parts, msg);
+        break;
+        case AuthType.NOT_REQUIRED:
+          cmdObj.resolve(parts, msg);
+        break;
+        case AuthType.REQUIRED:
+          if(!verified) return msg.channel.send("Please verify your codeforces account first with " + getHelp(commands.auth));
+
+          cmdObj.resolve(parts, msg);
+        break;
+        default:
+          return msg.channel.send("Something broke on command " + cmd + ", please alert an admin");
+      }
+    } else if (cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
-    } else if (cmd === "resetcache") commands.resetCache.resolve(parts, msg);
+    }
     else if (cmd === "toggle") {
       if (msg.member.roles.find("name", "Admin")) {
         trading = !trading;
         msg.channel.send(trading ? "Trading is now activated" : "Trading is now deactivated");
       } else msg.channel.send("No permission. Admin role required");
-    } else if (cmd === "feature") {
-      commands.feature.resolve(parts, msg);
-    } else if (cmd === "auth") {
-      if (verified) return msg.channel.send("You've already been verified.");
-
-      commands.auth.resolve(parts, msg);
-    } else if (cmd === "verify") {
-      if (verified) return msg.channel.send("You've already been verified.");
-
-      commands.verify.resolve(parts, msg);
     } else if (["list", "sell", "sales", "buy"].includes(cmd)) {
       if (verified) {
         const stocks = db
@@ -154,10 +167,8 @@ client.on("message", async msg => {
           return msg.channel.send("Successfully sold `" + amt + "` of stock `" + name + "`");
         } else if (cmd === "sales") {
           let ret = "Stock Availble:\n```";
-          console.log(db.get("sales").value());
           for (const [name, amt] of Object.entries(db.get("sales").value())) {
             if (amt === 0) continue;
-            console.log(name);
 
             const value = await getVal(name);
             ret += name + " : " + amt + " each at $" + value.toFixed(2) + "\n";

@@ -5,12 +5,13 @@ import db from "../db";
 import Command from "./command";
 import config from "../../config.json";
 import { getHelp } from "../util";
+import AuthType from "./authType";
 
 const auth: Command = {
   cmd: "auth",
   params: "[name (e.g. gamesterrex)]",
   desc: "Links a codeforces account to your discord account.",
-  requiresAuth: false,
+  authType: AuthType.NOT_IF_AUTHED,
   resolve: (parts: string[], msg: Message) => {
     const uid = msg.author.id;
     const uname = parts[0];

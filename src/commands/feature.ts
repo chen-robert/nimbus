@@ -2,12 +2,13 @@ import db from "../db";
 
 import Command from "./command";
 import { Message } from "discord.js";
+import AuthType from "./authType";
 
 const feature: Command = {
   cmd: "feature",
   params: "[Strings]",
   desc: "Request a new feature",
-  requiresAuth: false,
+  authType: AuthType.NOT_REQUIRED,
   resolve: (parts: string[], msg: Message) => {
     const request: string = parts.join(" ").trim();
 
