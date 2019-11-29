@@ -12,13 +12,12 @@ const feature: Command = {
   resolve: (parts: string[], msg: Message) => {
     const request: string = parts.join(" ").trim();
 
-    if (request.length !== 0) {
+    if (request.length !== 0 && !db.get("features").value().includes(request)) {
       (db.get("features") as any).push(request).write();
-    }
-
-    msg.channel.send(
+      msg.channel.send(
       "Feature request saved. Alternatively, make a pull request at https://github.com/chen-robert/nimbus (or shoot me a star :P)",
-    );
+      );
+    }
   },
 };
 
