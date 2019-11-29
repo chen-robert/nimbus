@@ -1,5 +1,5 @@
 node_modules
 *.swp
 
-ext
+ext/db.json
 .env
