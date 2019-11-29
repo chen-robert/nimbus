@@ -4,20 +4,20 @@ const config = require(__dirname + "/config.json");
 
 const { getVal } = require("./src/getVal");
 const { getHelp } = require("./src/util");
-
-const commands = {
-  feature: require("./src/commands/feature").default,
-  resetCache: require("./src/commands/resetCache").default,
-  auth: require("./src/commands/auth").default,
-  verify: require("./src/commands/verify").default
-};
-
 const AuthType = require("./src/commands/authType").default;
 
 const Discord = require("discord.js");
 const client = new Discord.Client();
 
 const db = require("./src/db").default;
+
+const commands = {
+  feature: require("./src/commands/feature").default,
+  resetCache: require("./src/commands/resetCache").default,
+  auth: require("./src/commands/auth").default,
+  verify: require("./src/commands/verify").default,
+  leaderboard: require("./src/commands/leaderboard").default
+};
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -88,8 +88,7 @@ client.on("message", async msg => {
       }
     } else if (cmd === "help") {
       msg.channel.send("```" + Object.values(helpMsgs).join("\n") + "\n```");
-    }
-    else if (cmd === "toggle") {
+    } else if (cmd === "toggle") {
       if (msg.member.roles.find("name", "Admin")) {
         trading = !trading;
         msg.channel.send(trading ? "Trading is now activated" : "Trading is now deactivated");
