@@ -16,7 +16,7 @@ const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync(__dirname + "/ext/db.json");
 const db = low(adapter);
 
-db.defaults({ users: {}, sales: {}, features: [] }).write();
+db.defaults({ users: {}, sales: {}, features: [], trans: [] }).write();
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -201,6 +201,14 @@ client.on('message', async msg => {
 
           db.set("sales", sales).write();
 
+          db.get("trans").push({ 
+            type: "sell",
+            amt,
+            name,
+            uid,
+            time: Date.now()
+          }).write();
+
           return msg.channel.send("Successfully sold `" + amt + "` of stock `" + name + "`");
         } else if(cmd === "sales") {
           let ret = "Stock Availble:\n```";
@@ -241,6 +249,14 @@ client.on('message', async msg => {
           
           sales[name] = curr - amt;
           db.set("sales", sales).write();
+          
+          db.get("trans").push({ 
+            type: "buy",
+            amt,
+            name,
+            uid,
+            time: Date.now()
+          }).write();
 
           return msg.channel.send("Successfully purchased `" + amt + "` of stock `" + name + "`");
         }
