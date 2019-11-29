@@ -16,6 +16,8 @@ const leaderboard: Command = {
 
     const list = [];
     for (const uid of Object.keys(users)) {
+      if(!users[uid].auth) continue;
+
       const value = await getUserValue(uid);
 
       list.push({
