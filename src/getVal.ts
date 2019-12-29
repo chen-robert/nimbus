@@ -26,10 +26,15 @@ const calculateValue = (rank: number, rating: number): number => {
 
 const getVal = async (username: string): Promise<number> => {
   if (cache[username]) return cache[username];
+  
+  try {
+    const data = JSON.parse(await request(`https://codeforces.com/api/user.info?handles=${username}`)).result[0];
 
-  const data = JSON.parse(await request(`https://codeforces.com/api/user.info?handles=${username}`)).result[0];
-
-  cache[username] = data.rating === undefined ? 0 : calculateValue(ratings.indexOf(data.rank), data.rating);
+    cache[username] = data.rating === undefined ? 0 : calculateValue(ratings.indexOf(data.rank), data.rating);
+  } catch (e) {
+    console.log(`Errored on calculating value for ${username}`, e.message);
+    cache[username] = -1;
+  }
 
   return cache[username];
 };

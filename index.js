@@ -13,7 +13,7 @@ const db = require("./src/db").default;
 
 const commands = {
   feature: require("./src/commands/feature").default,
-  resetCache: require("./src/commands/resetCache").default,
+  resetcache: require("./src/commands/resetCache").default,
   auth: require("./src/commands/auth").default,
   verify: require("./src/commands/verify").default,
   leaderboard: require("./src/commands/leaderboard").default
