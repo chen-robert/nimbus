@@ -29,7 +29,8 @@
     "start": "ts-node index.js",
     "dev": "nodemon index.js --watch index.js",
     "format": "eslint --fix \"**/*.ts\"",
-    "script:resetAll": "ts-node scripts/resetAll"
+    "script:resetAll": "ts-node scripts/resetAll",
+    "script:changeUsername": "ts-node scripts/changeUsername"
   },
   "author": "Robert Chen",
   "license": "ISC"
