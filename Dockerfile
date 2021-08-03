@@ -1,14 +1,13 @@
-FROM node:10
+FROM node:16
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY package*.json ./
+ENV NODE_ENV production
 
-RUN npm ci --only=production 
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile && yarn cache clean
 
 COPY . .
-
-ENV NODE_ENV production
 
 CMD ["npm", "start"]
